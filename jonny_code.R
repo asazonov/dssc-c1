@@ -4,22 +4,23 @@ library(devtools)
 library(DESeq)
 library(dynamicTreeCut)
 library(Rtsne)
+library(diffusionMap)
 
 
-bertie = read.csv("~/Dropbox/Work/hackathon/dssc-c1/bertie.csv")
+
+cellcycle = read.csv("~/Dropbox/Work/hackathon/dssc-c1/cellcycle.csv", row.names = 1)
+#bertie = data.frame(t(read.csv("~/Dropbox/Work/hackathon/dssc-c1/bertie.csv", row.names = 1))) doesn't really work with the method
 zebra = read.table(sep = "\t", file = "~/Dropbox/Work/hackathon/dssc-c1/zebrafish.txt")
-ear = read.table(sep = '\t', file = "~/Dropbox/Work/hackathon/dssc-c1/ear.txt", header = T); rownames(ear) = ear[,1]; ear = ear[, -1]
-#mouse = read.table(sep = "\t", file = "~/Dropbox/Work/hackathon/dssc-c1/mouse.txt")
+ear = read.table(sep = '\t', file = "~/Dropbox/Work/hackathon/dssc-c1/ear.txt", header = T, row.names = 1)
+#mouse = read.table(sep = "\t", file = "~/Dropbox/Work/hackathon/dssc-c1/mouse.txt") too big for github
 
-data = round(ear)
+data = round(bertie)
 #step 1: size factors
 counts = newCountDataSet(data, conditions = names(data))
 counts = estimateSizeFactors(counts)
 counts.matrix = counts(counts)
-#Put the counts on the common scale:
-counts.adj = t(t(counts.matrix)/sizeFactors(counts))
-#sanity check
-counts.matrix[1:5,1:5]/counts.adj[1:5, 1:5]
+#Put the counts on the common scale if it made sizefactors:
+if(!is.na(sizeFactors(counts)[1])){counts.adj = t(t(counts.matrix)/sizeFactors(counts))}
 
 #step 2: high var genes (dimension reduction)
 coef_var2 = function(vec_gene){
@@ -50,6 +51,7 @@ padj = p.adjust(p, "BH")
 sig = padj<0.1
 high.var = names(sig)[which(sig)]
 plot(x= counts.avg, y = counts.cv2, pch='.', log='xy', col = ifelse(names(counts.avg)%in%high.var , 'red', 'grey'))
+x_vals = 10^seq(from = -3, to = 5, length.out=1000)
 lines(x_vals, grad/x_vals + int, col = 'blue', lwd=1)
 counts.sig = counts.adj[which(rownames(counts.matrix)%in%high.var), ]
 
@@ -71,4 +73,7 @@ pca = prcomp(t(counts.sig))
 plot(x=pca$x[,1], y = pca$x[,2], col = clust.labels)
 plot(x=pca$x[,1], y = pca$x[,3], col = clust.labels)
 plot(x=pca$x[,2], y = pca$x[,3], col = clust.labels)
+plot(x=pca$x[,2], y = pca$x[,4], col = clust.labels)
 
+dm = diffuse(dist(t(counts.sig)))
+plot(dm, color = clust.labels)
