@@ -10,6 +10,7 @@ library(dynamicTreeCut)
 library(Rtsne)
 library(diffusionMap)
 #library(BASiCS)
+library(topGO)
 
 
 
@@ -74,12 +75,10 @@ dev.off()
 counts.sig = counts.adj[which(rownames(counts.matrix)%in%high.var), ]
 
 
-vargene_record = rbind(counts.cv2, counts.avg, as.integer(sig))
-rownames(vargene_record)[3] = "signif_var"
-write.csv(vargene_record, "vargenes.csv")
+
 
 #step 3: clustering and identification
-spearman = cor(counts.sig); spearman = (-spearman+1)/2; spearman[which(is.na(spearman))]=0.25 #JANKY FIX!!
+spearman.base = cor(counts.sig); spearman = (-spearman.base+1)/2; spearman[which(is.na(spearman))]=0.25 #JANKY FIX!!
 cluster = hclust(as.dist(spearman), method = 'average')
 clust.labels = cutreeDynamic(cluster, method = "hybrid", minClusterSize = 10, deepSplit = 0, distM = spearman)
 summary(clust.labels)
@@ -92,8 +91,7 @@ plot(cluster, labels = clust.labels)
 tsne = Rtsne(X=t(counts.sig), verbose = T, initial_dims = dim(counts.sig)[1])
 plot(tsne$Y, col = clust.labels)
 
-clust.df = data.frame(tsne_x=tsne$Y[,1], tsne_y= tsne$Y[,2], row.names = colnames(counts.matrix), cluster = clust.labels)
-write.csv(clust.df, "clust.csv")
+
 
 pca = prcomp(t(counts.sig))
 plot(x=pca$x[,1], y = pca$x[,2], col = clust.labels)
@@ -101,7 +99,6 @@ plot(x=pca$x[,1], y = pca$x[,3], col = clust.labels)
 plot(x=pca$x[,2], y = pca$x[,3], col = clust.labels)
 plot(x=pca$x[,2], y = pca$x[,4], col = clust.labels)
 
-write.csv(pca$x, "princomps.csv")
 
 dm = diffuse(dist(t(counts.sig)))
 plot(dm, color = clust.labels)
@@ -109,5 +106,21 @@ plot(dm, color = clust.labels)
 
 
 ##### 
-#BASiCS approach
+#topGO of the clusters
+
+
+
+#####
+#data saving
+write.csv(pca$x, "princomps.csv")
+
+vargene_record = rbind(counts.cv2, counts.avg, as.integer(sig))
+rownames(vargene_record)[3] = "signif_var"
+vargene_record = vargene_record
+write.csv(t(vargene_record), "vargenes.csv")
+
+write.csv(spearman.base, 'correlation.csv')
+
+clust.df = data.frame(tsne_x=tsne$Y[,1], tsne_y= tsne$Y[,2], row.names = colnames(counts.matrix), cluster = clust.labels)
+write.csv(clust.df, "clust.csv")
 
