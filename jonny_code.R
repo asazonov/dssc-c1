@@ -116,7 +116,7 @@ write.csv(pca$x, "princomps.csv")
 
 vargene_record = rbind(counts.cv2, counts.avg, as.integer(sig))
 rownames(vargene_record)[3] = "signif_var"
-vargene_record = vargene_record
+vargene_record = vargene_record[, -which(is.na(vargene_record[3,]))]
 write.csv(t(vargene_record), "vargenes.csv")
 
 write.csv(spearman.base, 'correlation.csv')
