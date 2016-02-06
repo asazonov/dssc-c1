@@ -25,7 +25,7 @@ class Index(tornado.web.RequestHandler):
     """
 
     def get(self):
-        execute("Rscript ../../helloworld.R")
+        execute("Rscript ../helloworld.R")
         self.render("index.html")
 
 
