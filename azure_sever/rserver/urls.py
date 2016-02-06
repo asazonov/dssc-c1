@@ -8,4 +8,4 @@ index = r"/"
 post_upload = r"/upload"
 
 # GET
-get_result = r"/result/(?P<filename>[\w]+)"
+get_result = r"/results/(?P<filename>[\w]+)"
