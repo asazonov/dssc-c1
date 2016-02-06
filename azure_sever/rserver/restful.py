@@ -12,8 +12,8 @@ class Index(tornado.web.RequestHandler):
     """
 
     def get(self):
-        subprocess.call(["Rscript", "../helloworld.R"])
-        self.render("index.html")
+        # subprocess.call(["Rscript", "../helloworld.R"])
+        self.render("example.html")
 
 
 class UploadData(tornado.web.RequestHandler):
