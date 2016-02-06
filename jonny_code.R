@@ -73,29 +73,27 @@ lines(x_vals, ((grad)/x_vals + int) * qchisq(.025, df)/df, col = 'red', lwd=1, l
 dev.off()
 counts.sig = counts.adj[which(rownames(counts.matrix)%in%high.var), ]
 
-write.csv(counts.cv2, file = 'vargenes_y.csv')
-write.csv(counts.avg, file = 'vargenes_x.csv')
-write.csv(as.numeric(sig), file = 'vargenes_signif.csv')
-write.csv(vargene_record, "vargenes_all.csv")
-vargene_record = rbind(counts.cv2, counts.avg, as.numeric(sig))
+
+vargene_record = rbind(counts.cv2, counts.avg, as.integer(sig))
 rownames(vargene_record)[3] = "signif_var"
+write.csv(vargene_record, "vargenes.csv")
 
 #step 3: clustering and identification
 spearman = cor(counts.sig); spearman = (-spearman+1)/2; spearman[which(is.na(spearman))]=0.25 #JANKY FIX!!
 cluster = hclust(as.dist(spearman), method = 'average')
 clust.labels = cutreeDynamic(cluster, method = "hybrid", minClusterSize = 10, deepSplit = 0, distM = spearman)
 summary(clust.labels)
-names(clust.labels) = names(counts.sig)
+rownames(clust.labels) = names(counts.sig)
 hist(clust.labels, breaks = length(unique(clust.labels)))
 plot(cluster, labels = clust.labels)
 
-write.csv(clust.labels, "cluster_labels.csv")
 
 #step 4: try dimension reduction steps: PCA/t-SNE
 tsne = Rtsne(X=t(counts.sig), verbose = T, initial_dims = dim(counts.sig)[1])
 plot(tsne$Y, col = clust.labels)
 
-write.csv(tsne$Y, "tsne_coords.csv")
+clust.df = data.frame(tsne_x=tsne$Y[,1], tsne_y= tsne$Y[,2], row.names = colnames(counts.matrix), cluster = clust.labels)
+write.csv(clust.df, "clust.csv")
 
 pca = prcomp(t(counts.sig))
 plot(x=pca$x[,1], y = pca$x[,2], col = clust.labels)
@@ -108,8 +106,6 @@ write.csv(pca$x, "princomps.csv")
 dm = diffuse(dist(t(counts.sig)))
 plot(dm, color = clust.labels)
 
-master_record = rbind(counts.cv2, counts.avg, as.numeric(sig))
-rownames(master_record)[3] = "signif_var"
 
 
 ##### 
