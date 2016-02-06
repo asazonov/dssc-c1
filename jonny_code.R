@@ -3,12 +3,13 @@ library(useful)
 library(devtools)
 library(DESeq)
 library(dynamicTreeCut)
+library(Rtsne)
 
 
 bertie = read.csv("~/Dropbox/Work/hackathon/dssc-c1/bertie.csv")
 zebra = read.table(sep = "\t", file = "~/Dropbox/Work/hackathon/dssc-c1/zebrafish.txt")
 ear = read.table(sep = '\t', file = "~/Dropbox/Work/hackathon/dssc-c1/ear.txt", header = T); rownames(ear) = ear[,1]; ear = ear[, -1]
-mouse = read.table(sep = "\t", file = "~/Dropbox/Work/hackathon/dssc-c1/mouse.txt")
+#mouse = read.table(sep = "\t", file = "~/Dropbox/Work/hackathon/dssc-c1/mouse.txt")
 
 data = round(ear)
 #step 1: size factors
@@ -61,3 +62,13 @@ clust.labels = cutreeDynamic(cluster, method = "hybrid", minClusterSize = 10, de
 summary(clust.labels)
 hist(clust.labels, breaks = length(unique(clust.labels)))
 plot(cluster, labels = clust.labels)
+
+#step 4: try dimension reduction steps: PCA/t-SNE
+tsne = Rtsne(X=t(counts.sig), verbose = T, initial_dims = dim(counts.sig)[1])
+plot(tsne$Y, col = clust.labels)
+
+pca = prcomp(t(counts.sig))
+plot(x=pca$x[,1], y = pca$x[,2], col = clust.labels)
+plot(x=pca$x[,1], y = pca$x[,3], col = clust.labels)
+plot(x=pca$x[,2], y = pca$x[,3], col = clust.labels)
+
