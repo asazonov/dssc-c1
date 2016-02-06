@@ -20,12 +20,13 @@ class UploadData(tornado.web.RequestHandler):
     def post(self):
         # save file
         fileinfo = self.request.files['filearg'][0]
+        print("fileinfo is", fileinfo)
         fname = fileinfo['filename']
         extn = os.path.splitext(fname)[1]
         cname = str(uuid.uuid4()) + extn
         fh = open(__UPLOADS__ + cname, 'w')
         fh.write(fileinfo['body'])
-        self.finish(cname + " is uploaded!! Check %s folder" % __UPLOADS__)
+        self.render("done.html")
 
 
 class GetResults(tornado.web.RequestHandler):
