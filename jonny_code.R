@@ -1,7 +1,9 @@
 file_loc = "~/Dropbox/Work/hackathon/"
+out_loc = "~/Dropbox/Work/hackathon/dssc-c1/data_out/"
+setwd(out_loc)
 
-#source("https://bioconductor.org/biocLite.R")
-#library(useful)
+source("https://bioconductor.org/biocLite.R")
+library(useful)
 #library(devtools)
 library(DESeq)
 library(dynamicTreeCut)
@@ -74,13 +76,16 @@ counts.sig = counts.adj[which(rownames(counts.matrix)%in%high.var), ]
 write.csv(counts.cv2, file = 'vargenes_y.csv')
 write.csv(counts.avg, file = 'vargenes_x.csv')
 write.csv(as.numeric(sig), file = 'vargenes_signif.csv')
-
+write.csv(vargene_record, "vargenes_all.csv")
+vargene_record = rbind(counts.cv2, counts.avg, as.numeric(sig))
+rownames(vargene_record)[3] = "signif_var"
 
 #step 3: clustering and identification
 spearman = cor(counts.sig); spearman = (-spearman+1)/2; spearman[which(is.na(spearman))]=0.25 #JANKY FIX!!
 cluster = hclust(as.dist(spearman), method = 'average')
 clust.labels = cutreeDynamic(cluster, method = "hybrid", minClusterSize = 10, deepSplit = 0, distM = spearman)
 summary(clust.labels)
+names(clust.labels) = names(counts.sig)
 hist(clust.labels, breaks = length(unique(clust.labels)))
 plot(cluster, labels = clust.labels)
 
@@ -103,7 +108,8 @@ write.csv(pca$x, "princomps.csv")
 dm = diffuse(dist(t(counts.sig)))
 plot(dm, color = clust.labels)
 
-
+master_record = rbind(counts.cv2, counts.avg, as.numeric(sig))
+rownames(master_record)[3] = "signif_var"
 
 
 ##### 
