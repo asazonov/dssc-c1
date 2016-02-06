@@ -4,25 +4,25 @@ setwd(out_loc)
 
 source("https://bioconductor.org/biocLite.R")
 library(useful)
-#library(devtools)
+library(devtools)
 library(DESeq)
 library(dynamicTreeCut)
 library(Rtsne)
 library(diffusionMap)
 #library(BASiCS)
 library(topGO)
+library(scde)
 
 
 
 cellcycle = read.csv(paste0(file_loc, "dssc-c1/cellcycle.csv"), row.names = 1)
-#bertie = data.frame(t(read.csv(paste0(file_loc, dssc-c1/bertie.csv", row.names = 1))) doesn't really work with the method
 zebra = read.table(sep = "\t", file = paste0(file_loc, "dssc-c1/zebrafish.txt"))
 ear = read.table(sep = '\t', file = paste0(file_loc, "dssc-c1/ear.txt"), header = T, row.names = 1)
 mouse = read.table(sep = "\t", file = paste0(file_loc, "mouse.txt")) 
 brain = read.csv(file = paste0(file_loc, "brain.csv"), header = T, row.names = 1) 
 
 data = round(ear) #### MAKE THIS POINT TO THE UPLOADED FILE
-data[1:5, 1:5] # as a check - put this on the page
+data[1:5, 1:5] # as a check - put this on the page?
 #step 1: size factors via DESeq
 counts = newCountDataSet(data, conditions = names(data))
 counts = estimateSizeFactors(counts)
@@ -106,7 +106,10 @@ plot(dm, color = clust.labels)
 
 
 ##### 
-#topGO of the clusters
+#cluster analysis
+
+#scde time (see vignette)
+
 
 
 
