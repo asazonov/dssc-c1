@@ -1,3 +1,5 @@
+file_loc = "~/Dropbox/Work/hackathon/"
+
 source("https://bioconductor.org/biocLite.R")
 library(useful)
 library(devtools)
@@ -9,17 +11,16 @@ library(BASiCS)
 
 
 
-marioni = read.table("~/Dropbox/Work/Cambridge/Marioni/counts.txt", header = T)
-cellcycle = read.csv("~/Dropbox/Work/hackathon/dssc-c1/cellcycle.csv", row.names = 1)
-#bertie = data.frame(t(read.csv("~/Dropbox/Work/hackathon/dssc-c1/bertie.csv", row.names = 1))) doesn't really work with the method
-zebra = read.table(sep = "\t", file = "~/Dropbox/Work/hackathon/dssc-c1/zebrafish.txt")
-ear = read.table(sep = '\t', file = "~/Dropbox/Work/hackathon/dssc-c1/ear.txt", header = T, row.names = 1)
-mouse = read.table(sep = "\t", file = "~/Dropbox/Work/hackathon/mouse.txt") 
-brain = read.csv(file = "~/Dropbox/Work/hackathon/brain.csv", header = T, row.names = 1) 
+cellcycle = read.csv(paste0(file_loc, "dssc-c1/cellcycle.csv"), row.names = 1)
+#bertie = data.frame(t(read.csv(paste0(file_loc, dssc-c1/bertie.csv", row.names = 1))) doesn't really work with the method
+zebra = read.table(sep = "\t", file = paste0(file_loc, "dssc-c1/zebrafish.txt"))
+ear = read.table(sep = '\t', file = paste0(file_loc, "dssc-c1/ear.txt"), header = T, row.names = 1)
+mouse = read.table(sep = "\t", file = paste0(file_loc, "mouse.txt")) 
+brain = read.csv(file = paste0(file_loc, "brain.csv"), header = T, row.names = 1) 
 
-data = round(brain) #in case it is funky
-corner(data) # as a check
-#step 1: size factors
+data = round(ear) #### MAKE THIS POINT TO THE UPLOADED FILE
+corner(data) # as a check - put this on the page
+#step 1: size factors via DESeq
 counts = newCountDataSet(data, conditions = names(data))
 counts = estimateSizeFactors(counts)
 counts.matrix = counts(counts)
@@ -39,6 +40,7 @@ counts.var = apply(counts.adj, MARGIN = 1, FUN = var)
 
 #in the paper they removed these low ones from the regression
 lower_limit = quantile(counts.avg)[2]
+## THE FOLLOWING HAVE THE RAW SCATTERPLOT DATA, COLOURS COME LATER
 cv2.fit = counts.cv2[which(counts.avg > min(5, lower_limit))]
 avg.fit = counts.avg[which(counts.avg > min(5, lower_limit))]
 
@@ -57,11 +59,14 @@ p = 1 - pchisq( counts.var * (df-1) / testDenom, df-1 )
 padj = p.adjust(p, "BH")
 sig = padj<0.1
 high.var = names(sig)[which(sig)]
-plot(x= counts.avg, y = counts.cv2, pch='.', log='xy', col = ifelse(names(counts.avg)%in%high.var , 'red', 'grey'))
 x_vals = 10^seq(from = -3, to = 5, length.out=1000)
+
+pdf("highvarplot.pdf", width = 10, height = 10)
+plot(x= counts.avg, y = counts.cv2, pch='.', log='xy', col = ifelse(names(counts.avg)%in%high.var , 'red', 'grey'))
 lines(x_vals, grad/x_vals + int, col = 'blue', lwd=1)
 lines(x_vals, ((grad)/x_vals + int) * qchisq(.975, df)/df, col = 'red', lwd=1, lty='dashed')
 lines(x_vals, ((grad)/x_vals + int) * qchisq(.025, df)/df, col = 'red', lwd=1, lty='dashed')
+dev.off()
 counts.sig = counts.adj[which(rownames(counts.matrix)%in%high.var), ]
 
 
