@@ -24,7 +24,7 @@ class UploadData(tornado.web.RequestHandler):
         fname = fileinfo['filename']
         extn = os.path.splitext(fname)[1]
         cname = str(uuid.uuid4()) + extn
-        fh = open(__UPLOADS__ + cname, 'w')
+        fh = open(__UPLOADS__ + cname, 'wb')
         fh.write(fileinfo['body'])
         self.render("done.html")
 
