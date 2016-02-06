@@ -1,13 +1,13 @@
 file_loc = "~/Dropbox/Work/hackathon/"
 
-source("https://bioconductor.org/biocLite.R")
-library(useful)
-library(devtools)
+#source("https://bioconductor.org/biocLite.R")
+#library(useful)
+#library(devtools)
 library(DESeq)
 library(dynamicTreeCut)
 library(Rtsne)
 library(diffusionMap)
-library(BASiCS)
+#library(BASiCS)
 
 
 
@@ -19,7 +19,7 @@ mouse = read.table(sep = "\t", file = paste0(file_loc, "mouse.txt"))
 brain = read.csv(file = paste0(file_loc, "brain.csv"), header = T, row.names = 1) 
 
 data = round(ear) #### MAKE THIS POINT TO THE UPLOADED FILE
-corner(data) # as a check - put this on the page
+data[1:5, 1:5] # as a check - put this on the page
 #step 1: size factors via DESeq
 counts = newCountDataSet(data, conditions = names(data))
 counts = estimateSizeFactors(counts)
@@ -40,9 +40,11 @@ counts.var = apply(counts.adj, MARGIN = 1, FUN = var)
 
 #in the paper they removed these low ones from the regression
 lower_limit = quantile(counts.avg)[2]
-## THE FOLLOWING HAVE THE RAW SCATTERPLOT DATA, COLOURS COME LATER
+
 cv2.fit = counts.cv2[which(counts.avg > min(5, lower_limit))]
 avg.fit = counts.avg[which(counts.avg > min(5, lower_limit))]
+
+
 
 
 #data fit using gamma family:
@@ -69,6 +71,9 @@ lines(x_vals, ((grad)/x_vals + int) * qchisq(.025, df)/df, col = 'red', lwd=1, l
 dev.off()
 counts.sig = counts.adj[which(rownames(counts.matrix)%in%high.var), ]
 
+write.csv(counts.cv2, file = 'vargenes_y.csv')
+write.csv(counts.avg, file = 'vargenes_x.csv')
+write.csv(as.numeric(sig), file = 'vargenes_signif.csv')
 
 
 #step 3: clustering and identification
