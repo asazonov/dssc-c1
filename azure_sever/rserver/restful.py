@@ -21,7 +21,7 @@ class UploadData(tornado.web.RequestHandler):
         # save file
         fileinfo = self.request.files["file"][0]
         filename = fileinfo["filename"]
-        fh = open(__UPLOADS__ + filename, 'wb')
+        fh = open(__UPLOADS__ + filename, 'wb+')
         fh.write(fileinfo['body'])
         self.redirect("results/" + filename.split(".")[0])
 
