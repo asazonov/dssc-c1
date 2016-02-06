@@ -41,11 +41,11 @@ counts.var = apply(counts.adj, MARGIN = 1, FUN = var)
 #in the paper they removed these low ones from the regression
 lower_limit = quantile(counts.avg)[2]
 
-cv2.fit = counts.cv2[which(counts.avg > min(5, lower_limit))]
-avg.fit = counts.avg[which(counts.avg > min(5, lower_limit))]
+cv2.fit = counts.cv2[which(counts.avg > max(0.5, lower_limit))]
+avg.fit = counts.avg[which(counts.avg > max(0.5, lower_limit))]
 
 
-
+if(is.na(sizeFactors(counts)[1])){size_factors = rep(1, dim(counts.matrix)[2])} else {size_factors = sizeFactors(counts)}
 
 #data fit using gamma family:
 model = glm(cv2.fit ~ I(1/avg.fit), family = Gamma(link = 'identity'))# native (slower) implementation
@@ -53,7 +53,7 @@ grad = model$coefficients[2]; a1 = grad
 int = model$coefficients[1]; a0 = int
 #formalised estimation of genes (no spike)
 df = dim(counts.matrix)[2]-1
-psia1theta = mean(1/sizeFactors(counts)) + a1
+psia1theta = mean(1/size_factors) + a1
 minBiolDisp = .5 ^ 2
 cv2th = a0 + minBiolDisp + a0 * minBiolDisp
 testDenom = ( counts.avg * psia1theta + counts.avg^2 * cv2th ) / ( 1 + cv2th/df )
@@ -77,22 +77,28 @@ write.csv(as.numeric(sig), file = 'vargenes_signif.csv')
 
 
 #step 3: clustering and identification
-spearman = cor(counts.sig); spearman = (-spearman+1)/2
+spearman = cor(counts.sig); spearman = (-spearman+1)/2; spearman[which(is.na(spearman))]=0.25 #JANKY FIX!!
 cluster = hclust(as.dist(spearman), method = 'average')
-clust.labels = cutreeDynamic(cluster, method = "hybrid", minClusterSize = 10, deepSplit = 2, distM = spearman)
+clust.labels = cutreeDynamic(cluster, method = "hybrid", minClusterSize = 10, deepSplit = 0, distM = spearman)
 summary(clust.labels)
 hist(clust.labels, breaks = length(unique(clust.labels)))
 plot(cluster, labels = clust.labels)
 
+write.csv(clust.labels, "cluster_labels.csv")
+
 #step 4: try dimension reduction steps: PCA/t-SNE
 tsne = Rtsne(X=t(counts.sig), verbose = T, initial_dims = dim(counts.sig)[1])
 plot(tsne$Y, col = clust.labels)
+
+write.csv(tsne$Y, "tsne_coords.csv")
 
 pca = prcomp(t(counts.sig))
 plot(x=pca$x[,1], y = pca$x[,2], col = clust.labels)
 plot(x=pca$x[,1], y = pca$x[,3], col = clust.labels)
 plot(x=pca$x[,2], y = pca$x[,3], col = clust.labels)
 plot(x=pca$x[,2], y = pca$x[,4], col = clust.labels)
+
+write.csv(pca$x, "princomps.csv")
 
 dm = diffuse(dist(t(counts.sig)))
 plot(dm, color = clust.labels)
