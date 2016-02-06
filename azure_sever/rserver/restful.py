@@ -7,17 +7,17 @@ import time
 __UPLOADS__ = "uploads/"
 
 
-def execute(command):
-    p = subprocess.Popen(command.split(), cwd=None, stdout=subprocess.PIPE)
-    while True:
-        line = p.stdout.readline()
-        if line == '' and p.poll() is not None:
-            break
-        if line != '':
-            time_string = time.strftime("%Y-%m-%d %H:%M:%S")
-            print("\033[94m$ Rscript {time} {output}".format(time=time_string,
-                                                             output=line))
-
+# def execute(command):
+#     p = subprocess.Popen(command.split(), cwd=None, stdout=subprocess.PIPE)
+#     while True:
+#         line = p.stdout.readline()
+#         if line == '' and p.poll() is not None:
+#             break
+#         if line != '':
+#             time_string = time.strftime("%Y-%m-%d %H:%M:%S")
+#             print("\033[94m$ Rscript {time} {output}".format(time=time_string,
+#                                                              output=line))
+#
 
 class Index(tornado.web.RequestHandler):
     """
@@ -25,7 +25,7 @@ class Index(tornado.web.RequestHandler):
     """
 
     def get(self):
-        execute("Rscript ../helloworld.R")
+        subprocess.call(["Rscript", "../helloworld.R"])
         self.render("index.html")
 
 
