@@ -28,7 +28,7 @@ nv.addGraph(function() {
     chart.showYAxis(false);
     //chart.yAxis.tickValues(0),
 
-    rdata = randomData(7,20);
+    rdata = randomData(1,20000);
     d3.select('#clust-plot svg')
         .datum(rdata)
         .call(chart);
