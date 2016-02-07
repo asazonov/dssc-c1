@@ -81,11 +81,11 @@
           <div id="sign-plot" style="height:500px" class='with-3d-shadow with-transitions'>
             <svg></svg>
           </div>
-          <h2>Cell plustering</h2>
+          <h2>Cell clustering</h2>
           <div id="clust-plot" style="height:500px" class='with-3d-shadow with-transitions'>
-          <h2>PCA</h2>
             <svg></svg>
           </div>
+          <h2>PCA</h2>
           <div id="pca-plot" style="height:500px" class='with-3d-shadow with-transitions'>
             <svg></svg>
           </div>
@@ -160,6 +160,39 @@
 
             rdata = {{ clusters_json }};
             d3.select('#clust-plot svg')
+                .datum(rdata)
+                .call(chart);
+
+            <!--nv.utils.windowResize(chart.update);-->
+
+            chart.dispatch.on('stateChange', function(e) { ('New State:', JSON.stringify(e)); });
+            return chart;
+        });
+
+        // pca
+        console.log({{ pca_json }});
+        var chart;
+        nv.addGraph(function() {
+            chart = nv.models.scatterChart()
+                .showDistX(true)
+                .showDistY(true)
+                .useVoronoi(true)
+                .duration(350);
+
+            chart.tooltip.contentGenerator(function(key) {
+                return '<h3>' + "Cell: " + key["point"]["cell"] + '</h3>';
+            });
+
+            chart.dispatch.on('renderEnd', function(){
+                console.log('render complete');
+            });
+
+            chart.xAxis.tickFormat(d3.format('.02f'));
+            chart.yAxis.tickFormat(d3.format('.02f'));
+            chart.pointRange([45, 50]);
+
+            rdata = {{ pca_json }};
+            d3.select('#pca-plot svg')
                 .datum(rdata)
                 .call(chart);
 

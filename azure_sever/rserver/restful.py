@@ -51,20 +51,23 @@ class Index(tornado.web.RequestHandler):
         regular_variables["values"] = random.sample(regular_variables["values"],
                                                     800)
 
-        # clustering
-        # highly_variables = {"key": "Highly Variable", "values": list()}
-        # regular_variables = {"key": "Regular", "values": list()}
-
+        # clustering and pca
         clust_df = pd.read_csv("../data_out/clust.csv")
+        pca_df = pd.read_csv("../data_out/princomps.csv")
         n_clusters = len(clust_df["cluster"].unique())
 
         clusters_list = list()
+        pca_list = list()
+
         for n in range(n_clusters):
             clusters_list.append(
                 {"key": "Group " + str(n + 1), "values": list()})
+            pca_list.append({"key": "Group " + str(n + 1), "values": list()})
+
+        cell_group_dict = dict()
 
         for i, row in clust_df.iterrows():
-            gene = {
+            cluster_cell = {
                 "cell": row["cell"],
                 "x": row["tsne_x"],
                 "y": row["tsne_y"],
@@ -72,13 +75,27 @@ class Index(tornado.web.RequestHandler):
                 "shape": shapes[row["cluster"] % n_clusters - 1],
                 "symbol": row["cluster"],
             }
+            clusters_list[row["cluster"] - 1]["values"].append(cluster_cell)
+            cell_group_dict[row["cell"]] = row["cluster"]
 
-            clusters_list[row["cluster"] - 1]["values"].append(gene)
+        for i, row in pca_df.iterrows():
+            pca_cell_group = cell_group_dict[row["cell"]]
+
+            pca_cell = {
+                "cell": row["cell"],
+                "x": row["PC1"],
+                "y": row["PC2"],
+                "size": 1,
+                "shape": shapes[pca_cell_group % n_clusters - 1],
+                "symbol": pca_cell_group,
+            }
+            pca_list[pca_cell_group - 1]["values"].append(pca_cell)
 
         self.render("example.html",
                     vargenes_json=json.dumps(
                         [highly_variables, regular_variables]),
-                    clusters_json=json.dumps(clusters_list))
+                    clusters_json=json.dumps(clusters_list),
+                    pca_json=json.dumps(pca_list))
 
 
 class UploadData(tornado.web.RequestHandler):
