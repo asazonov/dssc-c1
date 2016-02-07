@@ -25,7 +25,7 @@ mouse = read.csv(paste0(file_loc, "mouse.csv"), row.names = 1)
 brain = read.csv(paste0(file_loc, "brain.csv"), header = T, row.names = 1) 
 
 
-data = round(ear) #### MAKE THIS POINT TO THE UPLOADED FILE
+data = round(zebra) #### MAKE THIS POINT TO THE UPLOADED FILE
 rownames(data) = gsub(pattern = '"', replacement = '', x= rownames(data))
 data[1:5, 1:5] # as a check - put this on the page?
 #step 1: size factors via DESeq
@@ -133,7 +133,6 @@ rownames(cluster_counts) = rownames(counts.adj)
 for(i in 1:dim(counts.adj)[2]){
   #get cluster
   clust.number = get_cluster_from_name(rownames(clust.df)[i])
-  print(clust.number)
   #get counts
   counts = counts.adj[,i]
   cluster_counts[,clust.number] = cluster_counts[,clust.number] + as.vector(counts)
@@ -155,8 +154,8 @@ write.csv(comps, "princomps_full.csv")
 vargene_record = rbind(counts.cv2, counts.avg, as.integer(sig))
 rownames(vargene_record)[3] = "signif_var"
 
-vargene_record=cbind(gene = rownames(vargene_record), vargene_record)
-vargene_record = vargene_record[, -which(is.na(vargene_record[3,]))]
+#vargene_record=cbind(gene = rownames(vargene_record), vargene_record)
+#vargene_record = vargene_record[, -which(is.na(vargene_record[3,]))]
 write.table(x = t(vargene_record), file="vargenes.csv",quote=FALSE, col.names=FALSE,sep=",")
 
 write.csv(spearman.base, 'correlation.csv')
