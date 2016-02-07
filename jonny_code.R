@@ -1,8 +1,10 @@
-file_loc = "~/Dropbox/Work/hackathon/"
+file_loc = "~/"
 out_loc = "~/Dropbox/Work/hackathon/dssc-c1/data_out/"
 setwd(out_loc)
 
 source("https://bioconductor.org/biocLite.R")
+biocLite(c("diffusionMap", "dynamicTreeCut","DESeq","topGO"))
+
 library(useful)
 library(devtools)
 library(DESeq)
@@ -119,8 +121,10 @@ write.csv(pca$x, "princomps.csv")
 
 vargene_record = rbind(counts.cv2, counts.avg, as.integer(sig))
 rownames(vargene_record)[3] = "signif_var"
+
+vargene_record=cbind(gene = rownames(vargene_record), vargene_record)
 vargene_record = vargene_record[, -which(is.na(vargene_record[3,]))]
-write.csv(t(vargene_record), "vargenes.csv")
+write.table(x = t(vargene_record), file="vargenes.csv",quote=FALSE, col.names=FALSE,sep=",")
 
 write.csv(spearman.base, 'correlation.csv')
 
