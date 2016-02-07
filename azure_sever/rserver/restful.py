@@ -3,6 +3,8 @@ import pandas as pd
 import json
 import math
 import random
+import networkx as nx
+from networkx.readwrite import json_graph
 import os
 import uuid
 import subprocess
@@ -91,11 +93,27 @@ class Index(tornado.web.RequestHandler):
             }
             pca_list[pca_cell_group - 1]["values"].append(pca_cell)
 
+        # graph
+        corr_df = pd.read_csv("../data_out/correlation-new.csv",
+                              index_col="cell")
+        name_map = {}
+        for i, name in enumerate(corr_df.keys()):
+            name_map[i] = name
+        a = nx.from_numpy_matrix(corr_df.as_matrix())
+        a = nx.relabel_nodes(a, name_map)
+        a.remove_edges_from(a.selfloop_edges())
+        remove = [node for node, degree in a.degree().items() if degree == 0]
+        a.remove_nodes_from(remove)
+        d = json_graph.node_link_data(a)  # node-link format to serialize
+        json.dump(d, open(
+            os.path.join("rserver", "static", "graphs", "corr.json"), "w+"))
+
         self.render("example.html",
                     vargenes_json=json.dumps(
                         [highly_variables, regular_variables]),
                     clusters_json=json.dumps(clusters_list),
-                    pca_json=json.dumps(pca_list))
+                    pca_json=json.dumps(pca_list),
+                    graph_link="graphs/corr.json")
 
 
 class UploadData(tornado.web.RequestHandler):
