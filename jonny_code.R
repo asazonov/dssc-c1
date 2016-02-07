@@ -92,9 +92,9 @@ plot(cluster, labels = clust.labels)
 corrs = spearman.base
 cells=rownames(corrs)
 
-y = function(x) if (abs(x)>=0.8) x else 0
+top_only = function(x) if (abs(x)>=0.8) x else 0
 
-corrs10 = apply(corrs,1:2,y)
+corrs10 = apply(corrs,1:2,top_only)
 
 corrs10.df<- cbind(cell = cells, corrs10)
 write.csv(corrs10.df, "correlation-new.csv",row.names = FALSE,quote=FALSE)
