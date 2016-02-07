@@ -1,0 +1,3 @@
+A re-implementation of Jason Davies’ [Phylogenetic Tree of Life](https://www.jasondavies.com/tree-of-life/), with faded gray lines to connect the leaf nodes of the tree to their corresponding labels inspired by [a figure from *Nature*](http://www.nature.com/nature/journal/v462/n7276/fig_tab/nature08656_F1.html).
+
+This implementation modifies the depth of interior nodes in a [cluster layout](https://github.com/mbostock/d3/wiki/Cluster-Layout) to show branch lengths. Toggle the checkbox in the top-left corner to show or hide branch lengths, and mouseover a label to highlight its path to the root.

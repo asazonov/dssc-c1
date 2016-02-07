@@ -17,6 +17,7 @@ var tip = d3.tip()
 vis.call(tip);
 
 d3.json("force.json", function(json) {
+  console.log(json);
   var force = d3.layout.force()
       .charge(-70)
       .linkDistance(30)
@@ -67,19 +68,4 @@ d3.json("force.json", function(json) {
         .attr("cy", function(d) { return d.y; });
   });
 
-    var tooltip = d3.select("#chart")
-        .append("div")
-        .attr("class", "my-tooltip")//add the tooltip class
-        .style("position", "absolute")
-        .style("z-index", "10")
-        .style("visibility", "hidden");
-    tooltip.append("div")
-        .attr("id", "tt-name")
-        .text("simple");
-    tooltip.append("div")
-        .attr("id", "tt-size")
-        .text("simple");
-
-  tooltip.select("#tt-name").text(d.name)
-  tooltip.select("#tt-size").text(d.size)
 });
