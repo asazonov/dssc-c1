@@ -1,9 +1,8 @@
-file_loc = "~/"
+file_loc = "~/Dropbox/Work/hackathon/"
 out_loc = "~/Dropbox/Work/hackathon/dssc-c1/data_out/"
 setwd(out_loc)
 
 source("https://bioconductor.org/biocLite.R")
-biocLite(c("diffusionMap", "dynamicTreeCut","DESeq","topGO"))
 
 library(useful)
 library(devtools)
@@ -14,6 +13,7 @@ library(diffusionMap)
 #library(BASiCS)
 library(topGO)
 library(scde)
+library(dplyr)
 
 
 
@@ -22,6 +22,7 @@ zebra = read.table(sep = "\t", file = paste0(file_loc, "dssc-c1/zebrafish.txt"))
 ear = read.table(sep = '\t', file = paste0(file_loc, "dssc-c1/ear.txt"), header = T, row.names = 1)
 mouse = read.table(sep = "\t", file = paste0(file_loc, "mouse.txt")) 
 brain = read.csv(file = paste0(file_loc, "brain.csv"), header = T, row.names = 1) 
+
 
 data = round(ear) #### MAKE THIS POINT TO THE UPLOADED FILE
 data[1:5, 1:5] # as a check - put this on the page?
@@ -87,6 +88,17 @@ summary(clust.labels)
 rownames(clust.labels) = names(counts.sig)
 hist(clust.labels, breaks = length(unique(clust.labels)))
 plot(cluster, labels = clust.labels)
+
+corrs = spearman.base
+cells=rownames(corrs)
+
+y = function(x) if (abs(x)>=0.8) x else 0
+
+corrs10 = apply(corrs,1:2,y)
+
+corrs10.df<- cbind(cell = cells, corrs10)
+write.csv(corrs10.df, "correlation-new.csv",row.names = FALSE,quote=FALSE)
+
 
 
 #step 4: try dimension reduction steps: PCA/t-SNE
