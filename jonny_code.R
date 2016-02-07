@@ -26,6 +26,7 @@ brain = read.csv(paste0(file_loc, "brain.csv"), header = T, row.names = 1)
 
 
 data = round(ear) #### MAKE THIS POINT TO THE UPLOADED FILE
+rownames(data) = gsub(pattern = '"', replacement = '', x= rownames(data))
 data[1:5, 1:5] # as a check - put this on the page?
 #step 1: size factors via DESeq
 counts = newCountDataSet(data, conditions = names(data))
@@ -123,10 +124,20 @@ plot(dm, color = clust.labels)
 ##### 
 #cluster analysis
 
-#scde time (see vignette)
+clust.df = data.frame(tsne_x=tsne$Y[,1], tsne_y= tsne$Y[,2], row.names = colnames(counts.matrix), cluster = clust.labels)
 
+get_cluster_from_name = function(name){return(clust.df$cluster[which(rownames(clust.df)==name)])}
 
-
+cluster_counts = matrix(0, nrow = dim(counts.adj)[1], ncol = length(unique(clust.df$cluster)))
+rownames(cluster_counts) = rownames(counts.adj)
+for(i in 1:dim(counts.adj)[2]){
+  #get cluster
+  clust.number = get_cluster_from_name(rownames(clust.df)[i])
+  print(clust.number)
+  #get counts
+  counts = counts.adj[,i]
+  cluster_counts[,clust.number] = cluster_counts[,clust.number] + as.vector(counts)
+}
 
 #####
 #data saving
@@ -150,7 +161,8 @@ write.table(x = t(vargene_record), file="vargenes.csv",quote=FALSE, col.names=FA
 
 write.csv(spearman.base, 'correlation.csv')
 
-clust.df = data.frame(tsne_x=tsne$Y[,1], tsne_y= tsne$Y[,2], row.names = colnames(counts.matrix), cluster = clust.labels)
 write.csv(clust.df, "clust.csv")
 
 write.table(hc2Newick(cluster), file="newick.tab",row.names=FALSE,col.names=FALSE)
+
+write.csv(cluster_counts, 'cluster_expression.csv')
