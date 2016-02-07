@@ -12,8 +12,9 @@ library(Rtsne)
 library(diffusionMap)
 #library(BASiCS)
 library(topGO)
-library(scde)
+#library(scde)
 library(dplyr)
+library(ctc)
 
 
 
@@ -152,3 +153,4 @@ write.csv(spearman.base, 'correlation.csv')
 clust.df = data.frame(tsne_x=tsne$Y[,1], tsne_y= tsne$Y[,2], row.names = colnames(counts.matrix), cluster = clust.labels)
 write.csv(clust.df, "clust.csv")
 
+write.table(hc2Newick(cluster), file="newick.tab",row.names=FALSE,col.names=FALSE)
