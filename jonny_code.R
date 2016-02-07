@@ -1,4 +1,4 @@
-file_loc = "~/Dropbox/Work/hackathon/"
+file_loc = "~/Dropbox/Public/sc_data/"
 out_loc = "~/Dropbox/Work/hackathon/dssc-c1/data_out/"
 setwd(out_loc)
 
@@ -18,11 +18,11 @@ library(ctc)
 
 
 
-cellcycle = read.csv(paste0(file_loc, "dssc-c1/cellcycle.csv"), row.names = 1)
-zebra = read.table(sep = "\t", file = paste0(file_loc, "dssc-c1/zebrafish.txt"))
-ear = read.table(sep = '\t', file = paste0(file_loc, "dssc-c1/ear.txt"), header = T, row.names = 1)
-mouse = read.table(sep = "\t", file = paste0(file_loc, "mouse.txt")) 
-brain = read.csv(file = paste0(file_loc, "brain.csv"), header = T, row.names = 1) 
+cellcycle = read.csv(paste0(file_loc, "cellcycle.csv"), row.names = 1)
+zebra = read.csv(paste0(file_loc, "zebra.csv"), row.names = 1)
+ear = read.csv(paste0(file_loc, "ear.csv"), header = T, row.names = 1)
+mouse = read.csv(paste0(file_loc, "mouse.csv"), row.names = 1) 
+brain = read.csv(paste0(file_loc, "brain.csv"), header = T, row.names = 1) 
 
 
 data = round(ear) #### MAKE THIS POINT TO THE UPLOADED FILE
