@@ -129,7 +129,16 @@ plot(dm, color = clust.labels)
 
 #####
 #data saving
-write.csv(pca$x, "princomps.csv")
+comps = pca$x
+remove_outliers = function(vector){
+  limits = quantile(vector, c(.95,.05))
+  vector[which(vector<limits[2])] = NA
+  vector[which(vector>limits[1])] = NA
+  return(vector)
+}
+comps.outliersgone = apply(comps, 2, remove_outliers)
+write.csv(comps.outliersgone, "princomps_outliersgone.csv")
+write.csv(comps, "princomps_full.csv")
 
 vargene_record = rbind(counts.cv2, counts.avg, as.integer(sig))
 rownames(vargene_record)[3] = "signif_var"
